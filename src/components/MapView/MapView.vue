@@ -17,7 +17,7 @@ const props = defineProps({
   },
   zoom: {
     type: Number,
-    default: 15
+    default: 18
   }
 })
 
@@ -53,13 +53,11 @@ const initMap = () => {
           type: 'raster',
           source: 'osm-tiles',
           minzoom: 0,
-          maxzoom: 17
         }
       ]
     },
     center: props.center,
     zoom: props.zoom,
-    maxZoom: 16.95
   })
 
   map.value.on('load', () => {

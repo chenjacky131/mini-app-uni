@@ -13,11 +13,11 @@ import 'maplibre-gl/dist/maplibre-gl.css'
 const props = defineProps({
   center: {
     type: Array,
-    default: () => [116.397428, 39.90923]
+    default: () => [116.39735, 39.90925]
   },
   zoom: {
     type: Number,
-    default: 18
+    default: 15
   }
 })
 
@@ -53,12 +53,13 @@ const initMap = () => {
           type: 'raster',
           source: 'osm-tiles',
           minzoom: 0,
-          maxzoom: 19
+          maxzoom: 17
         }
       ]
     },
     center: props.center,
-    zoom: props.zoom
+    zoom: props.zoom,
+    maxZoom: 16.95
   })
 
   map.value.on('load', () => {
@@ -147,9 +148,11 @@ const addRobotMarker = (position, heading = 0) => {
 
   map.value.getContainer().appendChild(el)
 
-  new maplibregl.Marker({ element: el })
+  const marker = new maplibregl.Marker({ element: el })
     .setLngLat(position)
     .addTo(map.value)
+
+  return marker
 }
 
 const clearLayers = () => {

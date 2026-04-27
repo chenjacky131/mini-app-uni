@@ -14,11 +14,13 @@
 import { ref, onUnmounted } from 'vue'
 import maplibregl from 'maplibre-gl'
 import MapView from '@/components/MapView/MapView.vue'
-import FloorSelector from '@/components/FloorSelector/FloorSelector.vue'
+import FloorSelector from '@/components/FloorSelector/FloorSelector.vue';
+import * as turf from "@turf/turf";
 
 const mapViewRef = ref(null)
 const map = ref(null)
 const currentFloorId = ref(1)
+const routePoints = ref([])
 let animationId = null
 let currentMarker = null
 
@@ -49,7 +51,6 @@ const routeData = ref({
 const robotPosition = ref([116.39721610548906, 39.90908700915327])
 const robotHeading = ref(0)
 let routeIndex = 0
-let targetIndex = 1
 let isMoving = false
 
 const handleMapReady = (mapInstance) => {
@@ -59,7 +60,8 @@ const handleMapReady = (mapInstance) => {
     loadFloorData(currentFloorId.value)
     loadRouteData()
     loadRobotMarker()
-    // startRobotAnimation()
+    handleRouteAnimationData();
+    startRobotAnimation()
   }, 500)
 }
 
@@ -95,7 +97,31 @@ const loadRouteData = () => {
     mapViewRef.value.addRouteLayer('robot-route', routeData.value)
   }
 }
-
+const handleRouteAnimationData = () => {
+  routeData.value.features[0].geometry.coordinates.forEach((coord, index) => {
+    const nextCoord = routeData.value.features[0].geometry.coordinates[index + 1]
+    if (nextCoord) {
+      const lineString = turf.lineString([coord, nextCoord])
+      let sliced = turf.lineChunk(lineString, 0.0001, {
+            units: "kilometers",
+          })
+      if(sliced.features.length > 0) {
+            sliced.features.map((item1, index1) => {
+              item1.geometry.coordinates.map((d, dIndex) => {
+                if (
+                  index1 !== 0 &&
+                  index1 !== sliced.features.length - 1 &&
+                  dIndex === 0
+                )
+                  return;
+                if (index !== 0 && dIndex === 0) return;
+                routePoints.value.push(d);
+              });
+            });
+      }
+    }
+  });
+}
 const loadRobotMarker = () => {
   if (mapViewRef.value) {
     mapViewRef.value.addRobotMarker(robotPosition.value, robotHeading.value)
@@ -103,49 +129,24 @@ const loadRobotMarker = () => {
 }
 
 const startRobotAnimation = () => {
-  const coordinates = routeData.value.features[0].geometry.coordinates
+  const coordinates = routePoints.value
   if (coordinates.length < 2) return
 
   isMoving = true
   routeIndex = 0
-  targetIndex = 1
   animateRobot(coordinates)
 }
 
 const animateRobot = (coordinates) => {
   if (!isMoving) return
 
-  const start = coordinates[routeIndex]
-  const end = coordinates[targetIndex]
-  
-  const dx = end[0] - start[0]
-  const dy = end[1] - start[1]
-  const distance = Math.sqrt(dx * dx + dy * dy)
-  const speed = 0.00009
-
-  if (distance < speed) {
-    var x = end[0]
-    var y = end[1]
-    robotPosition.value = [x, y]
-    routeIndex = targetIndex
-    targetIndex++
-    
-    if (targetIndex >= coordinates.length) {
-      routeIndex = 0
-      targetIndex = 1
-    }
-  } else {
-    const ratio = speed / distance
-    robotPosition.value = [
-      start[0] + dx * ratio,
-      start[1] + dy * ratio
-    ]
+  const currentPoint = coordinates[routeIndex]
+  if (!currentPoint) {
+    isMoving = false
+    return
   }
-
-  if (dx !== 0 || dy !== 0) {
-    robotHeading.value = Math.atan2(dy, dx) * 180 / Math.PI
-  }
-  
+  robotPosition.value = currentPoint
+  routeIndex++
   updateRobotMarker()
 
   animationId = requestAnimationFrame(() => animateRobot(coordinates))

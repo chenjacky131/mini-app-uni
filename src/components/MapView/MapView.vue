@@ -17,7 +17,7 @@ const props = defineProps({
   },
   zoom: {
     type: Number,
-    default: 22,
+    default: 21,
   },
 });
 
@@ -41,26 +41,24 @@ const initMap = () => {
     style: {
       version: 8,
       sources: {
-        "normalMap:5": {
-          // 地图
-          type: "raster",
-          tiles: [
-            `https://t0.tianditu.gov.cn/DataServer/?T=vec_w&X={x}&Y={y}&L={z}&tk=8c16062efc93b72c81d8d1cacb19fceb`,
-          ],
-          tileSize: 256,
-        },
+        'osm-tiles': {
+          type: 'raster',
+          tiles: ['https://server.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
+          tileSize: 256
+        }
       },
       layers: [
         {
-          id: "normalMap:5-layer",
-          type: "raster",
-          source: "normalMap:5",
-          minzoom: 0,
-        },
+          id: 'osm-tiles-layer',
+          type: 'raster',
+          source: 'osm-tiles',
+          minzoom: 0
+        }
       ],
     },
     center: props.center,
     zoom: props.zoom,
+    maxZoom: 22,
   });
 
   map.value.on("load", () => {

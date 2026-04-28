@@ -19,10 +19,10 @@ import FloorSelector from "@/components/FloorSelector/FloorSelector.vue";
 import * as turf from "@turf/turf";
 import { PointCloudLayer } from "@deck.gl/layers";
 import { MapboxOverlay } from "@deck.gl/mapbox";
-import { LASWorkerLoader } from "@loaders.gl/las";
+import { LASLoader, LASWorkerLoader } from "@loaders.gl/las";
 import { registerLoaders, load } from "@loaders.gl/core";
 import { COORDINATE_SYSTEM } from "@deck.gl/core";
-registerLoaders([LASWorkerLoader]);
+registerLoaders([LASLoader, LASWorkerLoader]);
 
 const mapViewRef = ref(null);
 const map = ref(null);
@@ -36,11 +36,10 @@ const floors = ref([
   {
     id: 1,
     name: "1层",
-    lasUrl:
-      "/static/data/segment_segment_1120-12025_11_20_15_58_052025_11_20_16_08_37.las",
+    lasUrl: "./data/segment_segment_1120-12025_11_20_15_58_052025_11_20_16_08_37.las",
   },
-  { id: 2, name: "2层", lasUrl: "/static/data/segment_segment_1120-12025_11_20_15_58_052025_11_20_16_08_37.las" },
-  { id: 3, name: "3层", lasUrl: "/static/data/segment_segment_1120-12025_11_20_15_58_052025_11_20_16_08_37.las" },
+  { id: 2, name: "2层", lasUrl: "./data/segment_segment_1120-12025_11_20_15_58_052025_11_20_16_08_37.las" },
+  { id: 3, name: "3层", lasUrl: "./data/segment_segment_1120-12025_11_20_15_58_052025_11_20_16_08_37.las" },
 ]);
 
 const routeData = ref({
@@ -168,35 +167,45 @@ const updateRobotMarker = () => {
   }
 };
 
-const generateMockPointCloud = (floorId) => {
+const generateMockPointCloud = async (floorId) => {
   const lasUrl = floors.value.find((f) => f.id === floorId).lasUrl;
-  const layers = [
-    new PointCloudLayer({
-      id: "las-layer",
-      data: lasUrl,
-      loader: LASWorkerLoader,
-      getColor: { type: 'array', value: 0, size: 4 },
-      getNormal: [0, 0, 1],
-      getPosition: { type: 'array', value: 0, size: 3 },
-      opacity: 0.5, // 提高不透明度
-      pointSize: 0.5, // 增大点大小
-      pickable: true,
-      coordinateOrigin: [116.39721610548906, 39.90908700915327],
-      coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
-      onDataLoad: (data) => {
-        console.log("LAS data loaded:", data);
-        loadRouteData();
-        loadRobotMarker();
-        handleRouteAnimationData();
-      },
-      onError: (error) => {
-        console.error("Error loading LAS data:", error);
-      },
-    }),
-  ];
-  overlay.setProps({
-    layers,
-  });
+  
+  try {
+    // 先手动加载 LAS 数据，以便更好地控制加载过程
+    const lasData = await load(lasUrl, LASLoader, {
+      las: {
+        skip: 1,
+        normalize: true
+      }
+    });
+    
+    console.log("LAS data loaded manually:", lasData);
+    
+    const layers = [
+      new PointCloudLayer({
+        id: "las-layer",
+        data: lasData,
+        getColor: { type: 'array', value: 0, size: 4 },
+        getNormal: [0, 0, 1],
+        getPosition: { type: 'array', value: 0, size: 3 },
+        opacity: 0.5,
+        pointSize: 0.5,
+        pickable: true,
+        coordinateOrigin: [116.39721610548906, 39.90908700915327],
+        coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
+      }),
+    ];
+    overlay.setProps({
+      layers,
+    });
+    
+    loadRouteData();
+    loadRobotMarker();
+    handleRouteAnimationData();
+    
+  } catch (error) {
+    console.error("Error loading LAS data:", error);
+  }
 };
 
 onUnmounted(() => {

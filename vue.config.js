@@ -1,9 +1,11 @@
+const { resolve } = require("path");
 module.exports = {
   publicPath: '/',
   outputDir: 'dist',
   assetsDir: 'static',
   lintOnSave: false,
   productionSourceMap: false,
+  transpileDependencies: [],
   devServer: {
     port: 8080,
     open: true
@@ -11,7 +13,7 @@ module.exports = {
   configureWebpack: {
     resolve: {
       alias: {
-        '@': require('path').resolve(__dirname, 'src')
+        '@': resolve(__dirname, 'src')
       }
     }
   }

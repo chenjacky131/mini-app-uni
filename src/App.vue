@@ -16,6 +16,12 @@ import maplibregl from "maplibre-gl";
 import MapView from "@/components/MapView/MapView.vue";
 import FloorSelector from "@/components/FloorSelector/FloorSelector.vue";
 import * as turf from "@turf/turf";
+import { PointCloudLayer } from "@deck.gl/layers";
+import { MapboxOverlay } from "@deck.gl/mapbox";
+import { LASWorkerLoader } from "@loaders.gl/las";
+import { registerLoaders, load } from "@loaders.gl/core";
+import { COORDINATE_SYSTEM } from "@deck.gl/core";
+registerLoaders([LASWorkerLoader]);
 
 const mapViewRef = ref(null);
 const map = ref(null);

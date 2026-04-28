@@ -9,6 +9,7 @@
       {{ floor.name }}
     </div>
   </div>
+  <button class="ani-btn" @click="startRobotAnimation">开始动画</button>
 </template>
 
 <script>
@@ -27,6 +28,9 @@ export default {
   methods: {
     selectFloor(floorId) {
       this.$emit('floor-change', floorId)
+    },
+    startRobotAnimation() {
+      this.$emit('start-robot-animation')
     }
   }
 }
@@ -60,5 +64,16 @@ export default {
       color: white;
     }
   }
+}
+button.ani-btn {
+    position: absolute;
+    bottom: 110px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255, 255, 255, 0.9);
+    padding: 10px 20px;
+    border-radius: 25px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 100;
 }
 </style>

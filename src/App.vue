@@ -6,6 +6,7 @@
       :floors="floors"
       :currentFloor="currentFloorId"
       @floor-change="handleFloorChange"
+      @start-robot-animation="startRobotAnimation"
     />
   </div>
 </template>
@@ -29,11 +30,17 @@ const currentFloorId = ref(1);
 const routePoints = ref([]);
 let animationId = null;
 let currentMarker = null;
+let overlay = null;
 
 const floors = ref([
-  { id: 1, name: "1层", lasUrl: "/static/data/floor1.las" },
-  { id: 2, name: "2层", lasUrl: "/static/data/floor2.las" },
-  { id: 3, name: "3层", lasUrl: "/static/data/floor3.las" },
+  {
+    id: 1,
+    name: "1层",
+    lasUrl:
+      "/static/data/segment_segment_1120-12025_11_20_15_58_052025_11_20_16_08_37.las",
+  },
+  { id: 2, name: "2层", lasUrl: "/static/data/data2.las" },
+  { id: 3, name: "3层", lasUrl: "/static/data/data3.las" },
 ]);
 
 const routeData = ref({
@@ -44,19 +51,17 @@ const routeData = ref({
       geometry: {
         type: "LineString",
         coordinates: [
-          [116.39721610548906, 39.90908700915327],
-          [116.39742800000187, 39.9090911240022],
-          [116.39744409325618, 39.909224856448986],
-          [116.39744945767364, 39.90931949771482],
-          [116.3973207116411, 39.90933595705252],
-          [116.39731802943231, 39.909453229716405],
+          [116.39719410998993, 39.909067562209486],
+          [116.39725579939676, 39.90905183561222],
+          [116.39727867960329, 39.909075774400065],
+          [116.39720543535714, 39.90909367765852],
         ],
       },
     },
   ],
 });
 
-const robotPosition = ref([116.39721610548906, 39.90908700915327]);
+const robotPosition = ref([116.39719410998993, 39.909067562209486]);
 const robotHeading = ref(0);
 let routeIndex = 0;
 
@@ -65,12 +70,13 @@ let isMoving = false;
 const handleMapReady = (mapInstance) => {
   map.value = mapInstance;
 
+  overlay = new MapboxOverlay({
+    interleaved: true,
+    layers: [],
+  });
+  map.value.addControl(overlay);
   setTimeout(() => {
     loadFloorData(currentFloorId.value);
-    loadRouteData();
-    loadRobotMarker();
-    handleRouteAnimationData();
-    startRobotAnimation();
   }, 500);
 };
 
@@ -82,27 +88,7 @@ const handleFloorChange = (floorId) => {
 const loadFloorData = (floorId) => {
   if (!mapViewRef.value || !mapViewRef.value.map) return;
 
-  const points = generateMockPointCloud(floorId);
-
-  const geojson = {
-    type: "FeatureCollection",
-    features: points.map((p) => ({
-      type: "Feature",
-      geometry: {
-        type: "Point",
-        coordinates: [p.position[0], p.position[1]],
-      },
-      properties: {
-        color: p.color,
-      },
-    })),
-  };
-
-  mapViewRef.value.addPointCloudLayer(
-    "floor-" + floorId,
-    geojson,
-    [255, 200, 100],
-  );
+  generateMockPointCloud(floorId);
 };
 
 const loadRouteData = () => {
@@ -181,22 +167,40 @@ const updateRobotMarker = () => {
 };
 
 const generateMockPointCloud = (floorId) => {
-  const points = [];
-  const baseLng = 116.397428;
-  const baseLat = 39.90923;
-
-  for (let i = 0; i < 500; i++) {
-    points.push({
-      position: [
-        baseLng + (Math.random() - 0.5) * 0.0005,
-        baseLat + (Math.random() - 0.5) * 0.0005,
-        0,
-      ],
-      color: [Math.random() * 255, Math.random() * 255, Math.random() * 255],
-    });
-  }
-
-  return points;
+  const lasUrl = floors.value.find((f) => f.id === floorId).lasUrl;
+  const layers = [
+    new PointCloudLayer({
+      id: "las-layer",
+      data: lasUrl,
+      loader: LASWorkerLoader,
+      // getPosition: (d) => {
+      //   const pos = d.position || d;
+      //   // 可以根据实际情况调整这个值，比如减去一个固定值或缩小比例
+      //   return [pos[0], pos[1], pos[2] *2]; // 将 z 坐标缩小为原来的一半
+      // },
+      getNormal: [0, 1, 0],
+      getColor: (d) => {
+        return d.color;
+      },
+      opacity: 0.5, // 提高不透明度
+      pointSize: 0.5, // 增大点大小
+      pickable: true,
+      coordinateOrigin: [116.39721610548906, 39.90908700915327],
+      coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
+      onDataLoad: (data) => {
+        console.log("LAS data loaded:", data);
+        loadRouteData();
+        loadRobotMarker();
+        handleRouteAnimationData();
+      },
+      onError: (error) => {
+        console.error("Error loading LAS data:", error);
+      },
+    }),
+  ];
+  overlay.setProps({
+    layers,
+  });
 };
 
 onUnmounted(() => {

@@ -64,7 +64,7 @@ const handleMapReady = (mapInstance) => {
     loadRouteData();
     loadRobotMarker();
     handleRouteAnimationData();
-    // startRobotAnimation();
+    startRobotAnimation();
   }, 500);
 };
 

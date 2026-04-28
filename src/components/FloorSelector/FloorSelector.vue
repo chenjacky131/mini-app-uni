@@ -1,32 +1,34 @@
 <template>
-  <view class="floor-selector">
-    <view 
+  <div class="floor-selector">
+    <div 
       v-for="floor in floors" 
       :key="floor.id"
       :class="['floor-btn', { active: floor.id === currentFloor }]"
-      @tap="selectFloor(floor.id)"
+      @click="selectFloor(floor.id)"
     >
       {{ floor.name }}
-    </view>
-  </view>
+    </div>
+  </div>
 </template>
 
-<script setup>
-const props = defineProps({
-  floors: {
-    type: Array,
-    default: () => []
+<script>
+export default {
+  name: 'FloorSelector',
+  props: {
+    floors: {
+      type: Array,
+      default: () => []
+    },
+    currentFloor: {
+      type: Number,
+      default: 1
+    }
   },
-  currentFloor: {
-    type: Number,
-    default: 1
+  methods: {
+    selectFloor(floorId) {
+      this.$emit('floor-change', floorId)
+    }
   }
-})
-
-const emit = defineEmits(['floor-change'])
-
-const selectFloor = (floorId) => {
-  emit('floor-change', floorId)
 }
 </script>
 
@@ -50,6 +52,7 @@ const selectFloor = (floorId) => {
     font-size: 14px;
     background: #f0f0f0;
     color: #333;
+    cursor: pointer;
     transition: all 0.3s ease;
 
     &.active {

@@ -39,8 +39,8 @@ const floors = ref([
     lasUrl:
       "/static/data/segment_segment_1120-12025_11_20_15_58_052025_11_20_16_08_37.las",
   },
-  { id: 2, name: "2层", lasUrl: "/static/data/data2.las" },
-  { id: 3, name: "3层", lasUrl: "/static/data/data3.las" },
+  { id: 2, name: "2层", lasUrl: "/static/data/segment_segment_1120-12025_11_20_15_58_052025_11_20_16_08_37.las" },
+  { id: 3, name: "3层", lasUrl: "/static/data/segment_segment_1120-12025_11_20_15_58_052025_11_20_16_08_37.las" },
 ]);
 
 const routeData = ref({

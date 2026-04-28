@@ -51,17 +51,18 @@ const routeData = ref({
       geometry: {
         type: "LineString",
         coordinates: [
-          [116.39719410998993, 39.909067562209486],
-          [116.39725579939676, 39.90905183561222],
-          [116.39727867960329, 39.909075774400065],
-          [116.39720543535714, 39.90909367765852],
+          [116.39717307630036, 39.90906812860439],
+          [116.39725011233872, 39.90904243142731],
+          [116.39729098496844, 39.90908550382355],
+          [116.39720209475303, 39.90910786034132],
+          [116.39717568481046, 39.9090751984898]
         ],
       },
     },
   ],
 });
 
-const robotPosition = ref([116.39719410998993, 39.909067562209486]);
+const robotPosition = ref([116.39717307630036, 39.90906812860439]);
 const robotHeading = ref(0);
 let routeIndex = 0;
 
@@ -75,6 +76,7 @@ const handleMapReady = (mapInstance) => {
     layers: [],
   });
   map.value.addControl(overlay);
+  map.value.setPitch(27);
   setTimeout(() => {
     loadFloorData(currentFloorId.value);
   }, 500);
@@ -173,15 +175,9 @@ const generateMockPointCloud = (floorId) => {
       id: "las-layer",
       data: lasUrl,
       loader: LASWorkerLoader,
-      // getPosition: (d) => {
-      //   const pos = d.position || d;
-      //   // 可以根据实际情况调整这个值，比如减去一个固定值或缩小比例
-      //   return [pos[0], pos[1], pos[2] *2]; // 将 z 坐标缩小为原来的一半
-      // },
-      getNormal: [0, 1, 0],
-      getColor: (d) => {
-        return d.color;
-      },
+      getColor: { type: 'array', value: 0, size: 4 },
+      getNormal: [0, 0, 1],
+      getPosition: { type: 'array', value: 0, size: 3 },
       opacity: 0.5, // 提高不透明度
       pointSize: 0.5, // 增大点大小
       pickable: true,

@@ -36,10 +36,10 @@ const floors = ref([
   {
     id: 1,
     name: "1层",
-    lasUrl: "./data/segment_segment_1120-12025_11_20_15_58_052025_11_20_16_08_37.las",
+    lasUrl: "/data/segment_segment_1120-12025_11_20_15_58_052025_11_20_16_08_37.las",
   },
-  { id: 2, name: "2层", lasUrl: "./data/segment_segment_1120-12025_11_20_15_58_052025_11_20_16_08_37.las" },
-  { id: 3, name: "3层", lasUrl: "./data/segment_segment_1120-12025_11_20_15_58_052025_11_20_16_08_37.las" },
+  { id: 2, name: "2层", lasUrl: "/data/segment_segment_1120-12025_11_20_15_58_052025_11_20_16_08_37.las" },
+  { id: 3, name: "3层", lasUrl: "/data/segment_segment_1120-12025_11_20_15_58_052025_11_20_16_08_37.las" },
 ]);
 
 const routeData = ref({
@@ -171,7 +171,7 @@ const generateMockPointCloud = async (floorId) => {
   const lasUrl = floors.value.find((f) => f.id === floorId).lasUrl;
   
   try {
-    // 先手动加载 LAS 数据，以便更好地控制加载过程
+    // 直接使用 URL 加载，不使用 require
     const lasData = await load(lasUrl, LASLoader, {
       las: {
         skip: 1,

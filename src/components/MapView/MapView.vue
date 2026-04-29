@@ -41,20 +41,19 @@ const initMap = () => {
     style: {
       version: 8,
       sources: {
-        'satelliteMap:5': {
-    // 卫星图
-    type: 'raster',
-    tiles: [`https://t0.tianditu.gov.cn/DataServer/?T=img_w&X={x}&Y={y}&L={z}&tk='97695e2519cbdde8fb92aa6ebb3532a5'`],
-    tileSize: 256,
-  }
+        osm: {
+          type: "raster",
+          tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
+          tileSize: 256,
+        },
       },
       layers: [
         {
-          id: 'satelliteMap:5-layer',
-          type: 'raster',
-          source: 'satelliteMap:5',
-          minzoom: 0
-        }
+          id: "osm-layer",
+          type: "raster",
+          source: "osm",
+          minzoom: 0,
+        },
       ],
     },
     center: props.center,

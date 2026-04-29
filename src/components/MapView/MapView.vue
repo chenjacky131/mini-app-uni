@@ -43,7 +43,7 @@ const initMap = () => {
       sources: {
         osm: {
           type: "raster",
-          tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
+          tiles: ["https://cartodb-basemaps-a.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png"],
           tileSize: 256,
         },
       },

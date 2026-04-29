@@ -41,17 +41,18 @@ const initMap = () => {
     style: {
       version: 8,
       sources: {
-        'osm-tiles': {
-          type: 'raster',
-          tiles: ['https://server.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
-          tileSize: 256
-        }
+        'satelliteMap:5': {
+    // 卫星图
+    type: 'raster',
+    tiles: [`https://t0.tianditu.gov.cn/DataServer/?T=img_w&X={x}&Y={y}&L={z}&tk='97695e2519cbdde8fb92aa6ebb3532a5'`],
+    tileSize: 256,
+  }
       },
       layers: [
         {
-          id: 'osm-tiles-layer',
+          id: 'satelliteMap:5-layer',
           type: 'raster',
-          source: 'osm-tiles',
+          source: 'satelliteMap:5',
           minzoom: 0
         }
       ],

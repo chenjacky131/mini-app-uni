@@ -33,13 +33,9 @@ let currentMarker = null;
 let overlay = null;
 
 const floors = ref([
-  {
-    id: 1,
-    name: "1层",
-    lasUrl: "/data/segment_segment_1120-12025_11_20_15_58_052025_11_20_16_08_37.las",
-  },
-  { id: 2, name: "2层", lasUrl: "/data/segment_segment_1120-12025_11_20_15_58_052025_11_20_16_08_37.las" },
-  { id: 3, name: "3层", lasUrl: "/data/segment_segment_1120-12025_11_20_15_58_052025_11_20_16_08_37.las" },
+  { id: 1, name: "1层", lasUrl: "/data/scene1.las" },
+  { id: 2, name: "2层", lasUrl: "/data/scene1.las" },
+  { id: 3, name: "3层", lasUrl: "/data/scene1.las" },
 ]);
 
 const routeData = ref({
@@ -50,18 +46,18 @@ const routeData = ref({
       geometry: {
         type: "LineString",
         coordinates: [
-          [116.39717307630036, 39.90906812860439],
-          [116.39725011233872, 39.90904243142731],
-          [116.39729098496844, 39.90908550382355],
-          [116.39720209475303, 39.90910786034132],
-          [116.39717568481046, 39.9090751984898]
+          [116.39702730118006, 39.90908730370461],
+          [116.3972561003153, 39.909118856078464],
+          [116.39718828271884, 39.90935895298634],
+          [116.39697133375023, 39.90932813677841],
+          [116.39702577049201, 39.909095649920886]
         ],
       },
     },
   ],
 });
 
-const robotPosition = ref([116.39717307630036, 39.90906812860439]);
+const robotPosition = ref([116.39702730118006, 39.90908730370461]);
 const robotHeading = ref(0);
 let routeIndex = 0;
 
@@ -171,27 +167,16 @@ const generateMockPointCloud = async (floorId) => {
   const lasUrl = floors.value.find((f) => f.id === floorId).lasUrl;
   
   try {
-    // 直接使用 URL 加载，不使用 require
-    const lasData = await load(lasUrl, LASLoader, {
-      las: {
-        skip: 1,
-        normalize: true
-      }
-    });
-    
-    console.log("LAS data loaded manually:", lasData);
+    const lasData = await load(lasUrl, LASLoader);
     
     const layers = [
       new PointCloudLayer({
         id: "las-layer",
         data: lasData,
-        getColor: { type: 'array', value: 0, size: 4 },
-        getNormal: [0, 0, 1],
-        getPosition: { type: 'array', value: 0, size: 3 },
-        opacity: 0.5,
-        pointSize: 0.5,
+        opacity: 1,
+        pointSize: 1,
         pickable: true,
-        coordinateOrigin: [116.39721610548906, 39.90908700915327],
+        coordinateOrigin: [116.39717307630036, 39.90906812860439],
         coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
       }),
     ];

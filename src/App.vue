@@ -164,22 +164,60 @@ const updateRobotMarker = () => {
 };
 
 const generateMockPointCloud = async (floorId) => {
+  if (typeof window === 'undefined') return;
+  
   const lasUrl = floors.value.find((f) => f.id === floorId).lasUrl;
   
   try {
-    const lasData = await load(lasUrl, LASLoader);
+    const lasData = await load(lasUrl, LASLoader, { worker: false });
+    
+    const positionAttr = lasData.attributes.POSITION;
+    const positionData = positionAttr.value;
+    const count = positionData.length / 3;
+    
+    const colors = new Uint8Array(count * 3);
+    for (let i = 0; i < count; i++) {
+      const z = positionData[i * 3 + 2];
+      const ratio = z / 5;
+      colors[i * 3] = Math.floor(255 * ratio);
+      colors[i * 3 + 1] = Math.floor(255 * (1 - ratio));
+      colors[i * 3 + 2] = 100;
+    }
+    
+    const data = {
+      length: count,
+      attributes: {
+        POSITION: { value: positionData, size: 3 },
+        COLOR_0: { value: colors, size: 3 },
+      },
+    };
+    
+const baseLng = 116.39717307630036;
+    const baseLat = 39.90906812860439;
+    
+    const posArray = new Float64Array(count * 3);
+    for (let i = 0; i < count; i++) {
+      posArray[i * 3] = positionData[i * 3];
+      posArray[i * 3 + 1] = positionData[i * 3 + 1];
+      posArray[i * 3 + 2] = positionData[i * 3 + 2];
+    }
     
     const layers = [
       new PointCloudLayer({
         id: "las-layer",
         data: lasData,
+        getPosition: { type: 'accessor', size: 3 },
+        getColor: { type: 'accessor', size: 3 },
         opacity: 1,
-        pointSize: 1,
+        pointSize: 3,
         pickable: true,
-        coordinateOrigin: [116.39717307630036, 39.90906812860439],
+        coordinateOrigin: [baseLng, baseLat, 0],
         coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
       }),
     ];
+    
+    map.value.setCenter([baseLng, baseLat]);
+    map.value.setZoom(19);
     overlay.setProps({
       layers,
     });

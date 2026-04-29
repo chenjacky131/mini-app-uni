@@ -13,7 +13,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
 const props = defineProps({
   center: {
     type: Array,
-    default: () => [116.39723512052018, 39.9090741814594],
+    default: () => [116.39708579534016, 39.909236612863054],
   },
   zoom: {
     type: Number,

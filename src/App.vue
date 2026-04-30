@@ -33,9 +33,9 @@ let currentMarker = null;
 let overlay = null;
 
 const floors = ref([
-  { id: 1, name: "1层", lasUrl: "/data/scene1.las" },
-  { id: 2, name: "2层", lasUrl: "/data/scene1.las" },
-  { id: 3, name: "3层", lasUrl: "/data/scene1.las" },
+  { id: 1, name: "1层", lasUrl: "/data/scene1_v13.las" },
+  { id: 2, name: "2层", lasUrl: "/data/scene1_v13.las" },
+  { id: 3, name: "3层", lasUrl: "/data/scene1_v13.las" },
 ]);
 
 const routeData = ref({
@@ -71,7 +71,7 @@ const handleMapReady = (mapInstance) => {
     layers: [],
   });
   map.value.addControl(overlay);
-  map.value.setPitch(27);
+  map.value.setPitch(32);
   setTimeout(() => {
     loadFloorData(currentFloorId.value);
   }, 500);

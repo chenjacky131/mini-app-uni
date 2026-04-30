@@ -133,7 +133,7 @@ const addRobotMarker = (position, heading = 0) => {
   el.style.width = "40px";
   el.style.height = "40px";
   el.className = "robot-marker";
-  el.innerHTML = `<img src="/robot.png" alt="robot" style="width:100%;height:100%;" />`;
+  el.innerHTML = `<img src="https://raw.githubusercontent.com/chenjacky131/dianyun-page/refs/heads/main/robot.png" alt="robot" style="width:100%;height:100%;" />`;
   el.style.cursor = "pointer";
 
   const existing = document.getElementById("robot-marker");

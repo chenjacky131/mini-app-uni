@@ -174,17 +174,8 @@ const generateMockPointCloud = async (floorId) => {
   
   try {
     const res = await fetch(lasUrl);
-    console.log('Headers:', res.headers.get('content-type'), res.headers.get('content-length'));
     const buf = await res.arrayBuffer();
-    console.log('Buffer size:', buf.byteLength);
-    
-    if (buf.byteLength < 1000) {
-      console.log('First 100 bytes:', new Uint8Array(buf.slice(0, 100)));
-    }
-    
     const lasData = await load(buf, LASLoader, { worker: false });
-    console.log('LAS loaded:', lasData);
-    
     const positionAttr = lasData.attributes.POSITION;
     const positionData = positionAttr.value;
     const count = positionData.length / 3;
@@ -212,6 +203,7 @@ const generateMockPointCloud = async (floorId) => {
         pickable: true,
         coordinateOrigin: [baseLng, baseLat, 0],
         coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
+        config: null
       }),
     ];
     

@@ -1,8 +1,12 @@
-// main.js 顶部加这个
-if (typeof window !== 'undefined') {
-  window.fs = { readFile: () => {} };
-  window.require = (name) => {
-    if (name === 'fs') return window.fs;
+if (typeof window !== "undefined") {
+  // 模拟空 fs，阻止 pointcloud 插件调用 node fs
+  window.fs = {
+    readFile: () => {},
+    readFileSync: () => {},
+    existsSync: () => false,
+  };
+  window.require = (module) => {
+    if (module === "fs") return window.fs;
     return null;
   };
 }

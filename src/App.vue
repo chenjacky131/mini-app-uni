@@ -164,15 +164,26 @@ const updateRobotMarker = () => {
 };
 
 const generateMockPointCloud = async (floorId) => {
-  if (typeof window === 'undefined') return;
+  if (typeof window === 'undefined') {
+    console.log('SSR mode, skip');
+    return;
+  }
   
   const lasUrl = floors.value.find((f) => f.id === floorId).lasUrl;
   console.log('Loading:', lasUrl);
   
   try {
-    const lasData = await load(lasUrl, LASLoader, {
-      worker: false,
-    });
+    const response = await fetch(lasUrl);
+    const arrayBuffer = await response.arrayBuffer();
+    const dataView = new DataView(arrayBuffer);
+    const versionMajor = dataView.getUint8(24);
+    const versionMinor = dataView.getUint8(25);
+    console.log('File version:', versionMajor + '.' + versionMinor);
+    
+    const headerSize = dataView.getUint32(32, true);
+    console.log('Header size:', headerSize);
+    
+    const lasData = await load(arrayBuffer, LASLoader, { worker: false });
     console.log('LAS loaded:', lasData);
     
     const positionAttr = lasData.attributes.POSITION;
@@ -232,6 +243,7 @@ const baseLng = 116.39717307630036;
     
   } catch (error) {
     console.error("Error loading LAS data:", error);
+    console.error("Stack:", error.stack);
   }
 };
 

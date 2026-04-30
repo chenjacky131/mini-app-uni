@@ -178,16 +178,30 @@ const generateMockPointCloud = async (floorId) => {
     const lasData = await load(buf, LASLoader, { worker: false });
     const positionAttr = lasData.attributes.POSITION;
     const positionData = positionAttr.value;
-    const count = positionData.length / 3;
+    let count = positionData.length / 3;
     
-    const colors = new Uint8Array(count * 3);
-    for (let i = 0; i < count; i++) {
+    console.log('Total points:', count);
+    
+    const MAX_POINTS = 500000;
+    let data = [];
+    let step = 1;
+    if (count > MAX_POINTS) {
+      step = Math.ceil(count / MAX_POINTS);
+      console.log('Sampling step:', step);
+    }
+    
+    for (let i = 0; i < count; i += step) {
+      const x = positionData[i * 3];
+      const y = positionData[i * 3 + 1];
       const z = positionData[i * 3 + 2];
       const ratio = z / 5;
-      colors[i * 3] = Math.floor(255 * ratio);
-      colors[i * 3 + 1] = Math.floor(255 * (1 - ratio));
-      colors[i * 3 + 2] = 100;
+      data.push({
+        position: [x, y, z],
+        color: [Math.floor(255 * ratio), Math.floor(255 * (1 - ratio)), 100]
+      });
     }
+    
+    console.log('Sampled points:', data.length);
     
     const baseLng = 116.39717307630036;
     const baseLat = 39.90906812860439;
@@ -195,15 +209,14 @@ const generateMockPointCloud = async (floorId) => {
     const layers = [
       new PointCloudLayer({
         id: "las-layer",
-        data: lasData,
-        getPosition: { type: 'accessor', size: 3 },
-        getColor: { type: 'accessor', size: 3 },
+        data: data,
+        getPosition: d => d.position,
+        getColor: d => d.color,
         opacity: 1,
-        pointSize: 3,
-        pickable: true,
+        pointSize: 2,
+        pickable: false,
         coordinateOrigin: [baseLng, baseLat, 0],
         coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
-        config: null
       }),
     ];
     

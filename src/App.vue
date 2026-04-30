@@ -173,20 +173,7 @@ const generateMockPointCloud = async (floorId) => {
   console.log('Loading:', lasUrl);
   
   try {
-    const response = await fetch(lasUrl);
-    const arrayBuffer = await response.arrayBuffer();
-    const dataView = new DataView(arrayBuffer);
-    const pointFormat = dataView.getUint8(20);
-    console.log('Original format:', pointFormat);
-    
-    const arr = new Uint8Array(arrayBuffer);
-    arr[24] = 1;
-    arr[25] = 3;
-    arr[20] = 0;
-    const modifiedBuffer = arr.buffer.slice(0);
-    console.log('Modified to v1.3 format 0');
-    
-    const lasData = await load(modifiedBuffer, LASLoader, { worker: false });
+    const lasData = await load(lasUrl, LASLoader, { worker: false });
     console.log('LAS loaded:', lasData);
     
     const positionAttr = lasData.attributes.POSITION;

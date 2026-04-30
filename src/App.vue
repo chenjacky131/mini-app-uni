@@ -33,9 +33,9 @@ let currentMarker = null;
 let overlay = null;
 
 const floors = ref([
-  { id: 1, name: "1层", lasUrl: "/data/scene1.laz" },
-  { id: 2, name: "2层", lasUrl: "/data/scene1.laz" },
-  { id: 3, name: "3层", lasUrl: "/data/scene1.laz" },
+  { id: 1, name: "1层", lasUrl: "http://teaf0btjv.hn-bkt.clouddn.com/scene1.laz" },
+  { id: 2, name: "2层", lasUrl: "http://teaf0btjv.hn-bkt.clouddn.com/scene2.laz" },
+  { id: 3, name: "3层", lasUrl: "http://teaf0btjv.hn-bkt.clouddn.com/scene3.laz" },
 ]);
 
 const routeData = ref({
@@ -164,29 +164,14 @@ const updateRobotMarker = () => {
 };
 
 const generateMockPointCloud = async (floorId) => {
-  console.log('generateMockPointCloud start');
-  if (typeof window === 'undefined') {
-    console.log('No window, skipping');
-    return;
-  }
-  if (!window.fetch) {
-    console.log('No fetch, skipping');
-    return;
-  }
-  await new Promise(r => setTimeout(r, 100));
-  console.log('After delay');
+  if (typeof window === 'undefined') return;
   
   const lasUrl = floors.value.find((f) => f.id === floorId).lasUrl;
   console.log('Loading:', lasUrl);
   
   try {
-    const response = await fetch(lasUrl);
-    console.log('Response:', response.status, response.headers.get('content-length'));
-    const buffer = await response.arrayBuffer();
-    console.log('Buffer:', buffer.byteLength);
-    
-    const lasData = await parse(buffer, LASLoader, { worker: false });
-    console.log('Parsed:', lasData);
+    const lasData = await load(lasUrl, LASLoader, { worker: false });
+    console.log('Loaded:', lasData);
     console.log('LAS loaded:', lasData);
     
     const positionAttr = lasData.attributes.POSITION;

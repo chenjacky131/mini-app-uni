@@ -170,11 +170,9 @@ const generateMockPointCloud = async (floorId) => {
   console.log('Loading:', lasUrl);
   
   try {
-    const response = await fetch(lasUrl);
-    const buffer = await response.arrayBuffer();
-    console.log('Buffer:', buffer.byteLength);
-    
-    const lasData = await load(buffer, LASLoader);
+    const lasData = await load(lasUrl, LASLoader, {
+      worker: false,
+    });
     console.log('LAS loaded:', lasData);
     
     const positionAttr = lasData.attributes.POSITION;

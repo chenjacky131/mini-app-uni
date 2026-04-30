@@ -1,9 +1,20 @@
 if (typeof window !== "undefined") {
-  // 模拟空 fs，阻止 pointcloud 插件调用 node fs
   window.fs = {
-    readFile: () => {},
-    readFileSync: () => {},
-    existsSync: () => false,
+    readFile: (path, callback) => {
+      console.log('readFile called with path:', path);
+      if (callback) callback(null, null);
+    },
+    readFileSync: (path) => {
+      console.log('readFileSync called with path:', path);
+      return null;
+    },
+    existsSync: (path) => {
+      console.log('existsSync called with path:', path);
+      return false;
+    },
+    readdirSync: () => [],
+    statSync: () => ({ isFile: () => false, isDirectory: () => false }),
+    lstatSync: () => ({ isFile: () => false, isDirectory: () => false }),
   };
   window.require = (module) => {
     if (module === "fs") return window.fs;

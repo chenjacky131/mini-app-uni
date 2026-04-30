@@ -33,9 +33,9 @@ let currentMarker = null;
 let overlay = null;
 
 const floors = ref([
-  { id: 1, name: "1层", lasUrl: "/data/scene1_v12.las" },
-  { id: 2, name: "2层", lasUrl: "/data/scene1_v12.las" },
-  { id: 3, name: "3层", lasUrl: "/data/scene1_v12.las" },
+  { id: 1, name: "1层", lasUrl: "https://github.com/chenjacky131/dianyun-page/raw/refs/heads/main/data/scene1.las" },
+  { id: 2, name: "2层", lasUrl: "https://github.com/chenjacky131/dianyun-page/raw/refs/heads/main/data/scene2.las" },
+  { id: 3, name: "3层", lasUrl: "https://github.com/chenjacky131/dianyun-page/raw/refs/heads/main/data/scene3.las" },
 ]);
 
 const routeData = ref({

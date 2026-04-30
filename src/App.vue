@@ -178,8 +178,9 @@ const generateMockPointCloud = async (floorId) => {
     const arr = new Uint8Array(arrayBuffer);
     arr[24] = 1;
     arr[25] = 3;
+    arr[20] = 1;
     const modifiedBuffer = arr.buffer.slice(0);
-    console.log('Modified version to 1.3');
+    console.log('Modified to v1.3 format 1');
     
     const lasData = await load(modifiedBuffer, LASLoader, { worker: false });
     console.log('LAS loaded:', lasData);

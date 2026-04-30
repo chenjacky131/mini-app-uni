@@ -33,9 +33,9 @@ let currentMarker = null;
 let overlay = null;
 
 const floors = ref([
-  { id: 1, name: "1层", lasUrl: "https://teaf0btjv.hn-bkt.clouddn.com/scene1.laz" },
-  { id: 2, name: "2层", lasUrl: "https://teaf0btjv.hn-bkt.clouddn.com/scene2.laz" },
-  { id: 3, name: "3层", lasUrl: "https://teaf0btjv.hn-bkt.clouddn.com/scene3.laz" },
+  { id: 1, name: "1层", lasUrl: "https://cdn.jsdelivr.net/gh/chenjacky131/mini-app-uni@main/public/data/scene1.laz" },
+  { id: 2, name: "2层", lasUrl: "https://cdn.jsdelivr.net/gh/chenjacky131/mini-app-uni@main/public/data/scene1.laz" },
+  { id: 3, name: "3层", lasUrl: "https://cdn.jsdelivr.net/gh/chenjacky131/mini-app-uni@main/public/data/scene1.laz" },
 ]);
 
 const routeData = ref({

@@ -175,15 +175,13 @@ const generateMockPointCloud = async (floorId) => {
   try {
     const response = await fetch(lasUrl);
     const arrayBuffer = await response.arrayBuffer();
-    const dataView = new DataView(arrayBuffer);
-    const versionMajor = dataView.getUint8(24);
-    const versionMinor = dataView.getUint8(25);
-    console.log('File version:', versionMajor + '.' + versionMinor);
+    const arr = new Uint8Array(arrayBuffer);
+    arr[24] = 1;
+    arr[25] = 3;
+    const modifiedBuffer = arr.buffer.slice(0);
+    console.log('Modified version to 1.3');
     
-    const headerSize = dataView.getUint32(32, true);
-    console.log('Header size:', headerSize);
-    
-    const lasData = await load(arrayBuffer, LASLoader, { worker: false });
+    const lasData = await load(modifiedBuffer, LASLoader, { worker: false });
     console.log('LAS loaded:', lasData);
     
     const positionAttr = lasData.attributes.POSITION;

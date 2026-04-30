@@ -181,9 +181,13 @@ const generateMockPointCloud = async (floorId) => {
   
   try {
     const response = await fetch(lasUrl);
-    console.log('Response status:', response.status, response.type);
+    console.log('Response status:', response.status, response.statusText, response.type);
+    console.log('Response headers:', [...response.headers.entries()]);
     const buffer = await response.arrayBuffer();
     console.log('Buffer size:', buffer.byteLength);
+    if (buffer.byteLength < 1000) {
+      console.log('Buffer content:', new TextDecoder().decode(buffer.slice(0, 200)));
+    }
     
     const lasData = await parse(buffer, LASLoader, { worker: false });
     console.log('Parsed:', lasData);

@@ -20,7 +20,7 @@ import * as turf from "@turf/turf";
 import { PointCloudLayer } from "@deck.gl/layers";
 import { MapboxOverlay } from "@deck.gl/mapbox";
 import { LASLoader, LASWorkerLoader } from "@loaders.gl/las";
-import { registerLoaders, load } from "@loaders.gl/core";
+import { registerLoaders, load, parse } from "@loaders.gl/core";
 import { COORDINATE_SYSTEM } from "@deck.gl/core";
 registerLoaders([LASLoader, LASWorkerLoader]);
 
@@ -164,16 +164,17 @@ const updateRobotMarker = () => {
 };
 
 const generateMockPointCloud = async (floorId) => {
-  if (typeof window === 'undefined') {
-    console.log('SSR mode, skip');
-    return;
-  }
+  if (typeof window === 'undefined') return;
   
   const lasUrl = floors.value.find((f) => f.id === floorId).lasUrl;
-  console.log('Loading:', lasUrl);
+  console.log('Loading URL:', lasUrl);
+  console.log('LASLoader version:', LASLoader.version);
   
   try {
-    const lasData = await load(lasUrl, LASLoader, { worker: false });
+    const response = await fetch(lasUrl);
+    const buffer = await response.arrayBuffer();
+    const lasData = await parse(buffer, LASLoader, { worker: false });
+    console.log('Parsed:', lasData);
     console.log('LAS loaded:', lasData);
     
     const positionAttr = lasData.attributes.POSITION;

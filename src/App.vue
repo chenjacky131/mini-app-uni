@@ -33,9 +33,9 @@ let currentMarker = null;
 let overlay = null;
 
 const floors = ref([
-  { id: 1, name: "1层", lasUrl: "https://cdn.jsdelivr.net/gh/chenjacky131/mini-app-uni@main/public/data/scene1.laz" },
-  { id: 2, name: "2层", lasUrl: "https://cdn.jsdelivr.net/gh/chenjacky131/mini-app-uni@main/public/data/scene1.laz" },
-  { id: 3, name: "3层", lasUrl: "https://cdn.jsdelivr.net/gh/chenjacky131/mini-app-uni@main/public/data/scene1.laz" },
+  { id: 1, name: "1层", lasUrl: "https://raw.githubusercontent.com/chenjacky131/dianyun-page/main/data/scene1.laz" },
+  { id: 2, name: "2层", lasUrl: "https://raw.githubusercontent.com/chenjacky131/dianyun-page/main/data/scene1.laz" },
+  { id: 3, name: "3层", lasUrl: "https://raw.githubusercontent.com/chenjacky131/dianyun-page/main/data/scene1.laz" },
 ]);
 
 const routeData = ref({
@@ -164,14 +164,25 @@ const updateRobotMarker = () => {
 };
 
 const generateMockPointCloud = async (floorId) => {
-  if (typeof window === 'undefined') return;
+  if (typeof window === 'undefined') {
+    console.log('SSR skip');
+    return;
+  }
   
   const lasUrl = floors.value.find((f) => f.id === floorId).lasUrl;
   console.log('Loading:', lasUrl);
   
   try {
-    const lasData = await load(lasUrl, LASLoader, { worker: false });
-    console.log('Loaded:', lasData);
+    const res = await fetch(lasUrl);
+    console.log('Headers:', res.headers.get('content-type'), res.headers.get('content-length'));
+    const buf = await res.arrayBuffer();
+    console.log('Buffer size:', buf.byteLength);
+    
+    if (buf.byteLength < 1000) {
+      console.log('First 100 bytes:', new Uint8Array(buf.slice(0, 100)));
+    }
+    
+    const lasData = await load(buf, LASLoader, { worker: false });
     console.log('LAS loaded:', lasData);
     
     const positionAttr = lasData.attributes.POSITION;
@@ -187,23 +198,8 @@ const generateMockPointCloud = async (floorId) => {
       colors[i * 3 + 2] = 100;
     }
     
-    const data = {
-      length: count,
-      attributes: {
-        POSITION: { value: positionData, size: 3 },
-        COLOR_0: { value: colors, size: 3 },
-      },
-    };
-    
-const baseLng = 116.39717307630036;
+    const baseLng = 116.39717307630036;
     const baseLat = 39.90906812860439;
-    
-    const posArray = new Float64Array(count * 3);
-    for (let i = 0; i < count; i++) {
-      posArray[i * 3] = positionData[i * 3];
-      posArray[i * 3 + 1] = positionData[i * 3 + 1];
-      posArray[i * 3 + 2] = positionData[i * 3 + 2];
-    }
     
     const layers = [
       new PointCloudLayer({
@@ -221,9 +217,7 @@ const baseLng = 116.39717307630036;
     
     map.value.setCenter([baseLng, baseLat]);
     map.value.setZoom(19);
-    overlay.setProps({
-      layers,
-    });
+    overlay.setProps({ layers });
     
     loadRouteData();
     loadRobotMarker();

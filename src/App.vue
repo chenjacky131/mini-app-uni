@@ -20,7 +20,7 @@ import * as turf from "@turf/turf";
 import { PointCloudLayer } from "@deck.gl/layers";
 import { MapboxOverlay } from "@deck.gl/mapbox";
 import { LASLoader, LASWorkerLoader } from "@loaders.gl/las";
-import { registerLoaders, load, parse } from "@loaders.gl/core";
+import { registerLoaders, load, parse, Loader } from "@loaders.gl/core";
 import { COORDINATE_SYSTEM } from "@deck.gl/core";
 registerLoaders([LASLoader, LASWorkerLoader]);
 
@@ -164,15 +164,27 @@ const updateRobotMarker = () => {
 };
 
 const generateMockPointCloud = async (floorId) => {
-  if (typeof window === 'undefined') return;
+  console.log('generateMockPointCloud start');
+  if (typeof window === 'undefined') {
+    console.log('No window, skipping');
+    return;
+  }
+  if (!window.fetch) {
+    console.log('No fetch, skipping');
+    return;
+  }
+  await new Promise(r => setTimeout(r, 100));
+  console.log('After delay');
   
   const lasUrl = floors.value.find((f) => f.id === floorId).lasUrl;
-  console.log('Loading URL:', lasUrl);
-  console.log('LASLoader version:', LASLoader.version);
+  console.log('Loading:', lasUrl);
   
   try {
     const response = await fetch(lasUrl);
+    console.log('Response status:', response.status, response.type);
     const buffer = await response.arrayBuffer();
+    console.log('Buffer size:', buffer.byteLength);
+    
     const lasData = await parse(buffer, LASLoader, { worker: false });
     console.log('Parsed:', lasData);
     console.log('LAS loaded:', lasData);
